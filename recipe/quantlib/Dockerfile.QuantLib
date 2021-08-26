@@ -1,0 +1,81 @@
+ARG TAG=latest
+FROM ubuntu:19.10 AS base
+FROM continuumio/anaconda3
+RUN /opt/conda/bin/conda config --add channels conda-forge && /opt/conda/bin/conda config --set channel_priority false
+
+USER root
+ENV DEBIAN_FRONTEND noninteractive
+ARG QUANTLIB_VERSION=1.22
+ENV QUANTLIB_VERSION ${QUANTLIB_VERSION}
+ENV BOOST=/usr/include/boost
+ENV LC_NUMERIC=C
+ENV LANG=en_US.UTF-8
+#ENV LC_ALL=en_GB.UTF-8
+
+RUN apt-get update
+RUN apt-get install -y git sudo wget curl software-properties-common build-essential gcc libboost-dev libboost-all-dev python3
+RUN apt-get -y install cmake protobuf-compiler
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - &&  sudo apt-get install -y nodejs
+
+RUN wget https://github.com/lballabio/QuantLib/releases/download/QuantLib-v${QUANTLIB_VERSION}/QuantLib-${QUANTLIB_VERSION}.tar.gz \
+    && tar xfz QuantLib-${QUANTLIB_VERSION}.tar.gz \
+    && rm QuantLib-${QUANTLIB_VERSION}.tar.gz \
+    && cd QuantLib-${QUANTLIB_VERSION} \
+    && ./configure --prefix=/usr --disable-static CXXFLAGS=-O3 \
+    && make -j 4 && make check && make install \
+    && cd .. && rm -rf QuantLib-${QUANTLIB_VERSION} && ldconfig
+
+RUN wget https://github.com/lballabio/QuantLib-SWIG/releases/download/QuantLib-SWIG-v${QUANTLIB_VERSION}/QuantLib-SWIG-${QUANTLIB_VERSION}.tar.gz \
+#https://github.com/lballabio/QuantLib/releases/download/QuantLib-v${QUANTLIB_VERSION}/QuantLib-${QUANTLIB_VERSION}.tar.gz \
+    && tar xfz QuantLib-SWIG-${QUANTLIB_VERSION}.tar.gz \
+    && rm QuantLib-SWIG-${QUANTLIB_VERSION}.tar.gz \
+    && cd QuantLib-SWIG-${QUANTLIB_VERSION} \
+    && ./configure --prefix=/usr --disable-static CXXFLAGS=-O3 \
+    && make -j 4 && make check && make install \
+    && cd .. && rm -rf QuantLib-SWIG-${QUANTLIB_VERSION} && ldconfig
+
+RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz \
+    && tar xzf ta-lib-0.4.0-src.tar.gz \
+    && rm ta-lib-0.4.0-src.tar.gz \
+    && cd ta-lib* \
+    && ./configure --prefix=/usr  \
+    && make && sudo make install
+    #&& export TA_LIBRARY_PATH=$PREFIX/lib \
+    #&& export TA_INCLUDE_PATH=$PREFIX/include \
+    #&& python setup.py install
+
+# Setup for Jupyter Notebook
+RUN echo "export PATH=/opt/conda/bin:$PATH" > /etc/profile.d/conda.sh && \
+    cp /etc/profile.d/conda.sh /root/.bashrc && \
+    groupadd -g 1000 jupyter && \
+    useradd -g jupyter -m -s /bin/bash jupyter && \
+    mkdir -p /home/jupyter/notebook && \
+    mkdir -p /etc/sudoers.d && \
+#mkdir -p /etc/sudoers.d/jupyter && \
+    echo "jupyter:jupyter" | chpasswd && \
+    echo "jupyter ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/jupyter && \
+    chmod 755 /etc/sudoers.d/jupyter && \
+
+# Below file enable password access instead of token
+    echo "c.NotebookApp.token = 'jupyter'" > /home/jupyter/jupyter_notebook_config.py && \
+
+# Conda clean up
+/opt/conda/bin/conda install -c conda-forge git pip ta-lib && \
+#pip install chart_studio && \
+#pip install git+https://github.com/jasonstrimpel/volatility-trading.git && \
+#pip install git+https://github.com/lakhwindersingh/Data-Analysis.git && \
+#pip install git+https://github.com/quantopian/zipline.git && \
+#pip install git+https://github.com/mrjbq7/ta-lib && \
+#pip install git+https://github.com/jackluo/py-quantmod && \
+/opt/conda/bin/conda clean -y --all
+
+# Add shell script to start postfix and jupyter
+COPY entrypoint.sh /usr/local/bin
+RUN chmod +x /usr/local/bin/entrypoint.sh
+EXPOSE 9999 9000 443
+USER jupyter
+WORKDIR /home/jupyter/
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+CMD []

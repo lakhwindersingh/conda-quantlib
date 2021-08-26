@@ -1,0 +1,74 @@
+FROM ubuntu:20.04
+# ARG TAG=latest
+USER root
+
+RUN apt-get update
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install tzdata git sudo wget curl unzip software-properties-common build-essential checkinstall\
+    flex make bison gcc libgcc1 g++ ccache subversion sqlite3 libsqlite3-dev ghostscript
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install libboost-dev libboost-all-dev libboost-math-dev libboost-test-dev libboost-serialization-dev \
+    libboost-thread-dev libboost-program-options-dev
+RUN DEBIAN_FRONTEND="noninteractive" apt-get -y install cmake protobuf-compiler python3-setuptools python3 python3-pip libpng-dev apt-utils \
+    python-dev python3-pandas python3-numpy cython3 \
+    libzstd-dev
+
+# recommended to give Python3 precedence over Python2 (which is end-of-life since 2019)
+RUN sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+
+RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash - &&  sudo apt-get install -y nodejs
+
+RUN sudo add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update -y
+
+RUN sudo DEBIAN_FRONTEND="noninteractive" apt-get install libproj-dev proj-data proj-bin unzip -y
+
+# install GEOS
+RUN sudo DEBIAN_FRONTEND="noninteractive" apt-get install libgeos-dev -y
+
+# install GDAL
+#RUN sudo DEBIAN_FRONTEND="noninteractive" apt-get install libgdal-dev python3-gdal gdal-bin -y
+#ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+#ENV C_INCLUDE_PATH=/usr/include/gdal
+#RUN pip install GDAL=3.2.1
+
+RUN sudo npm cache clean -f
+RUN sudo npm uninstall node-pre-gyp node-gyp --save && sudo npm install @mapbox/node-pre-gyp --save
+RUN sudo npm install -g gdal@0.10.1 --build-from-source --shared_gdal
+
+# install PDAL (optional)
+RUN sudo DEBIAN_FRONTEND="noninteractive" apt-get install libpdal-dev pdal libpdal-plugin-python  -y
+
+#RUN sudo DEBIAN_FRONTEND="noninteractive" apt-get install -y \
+#  wx3.0-headers wx-common libwxgtk3.0-gtk3-dev \
+#  python3-opengl python3-wxgtk4.0 \
+#  libwxbase3.0-dev   \
+#  libncurses5-dev \
+#  libbz2-dev \
+#  zlib1g-dev gettext \
+#  libtiff5-dev libpnglite-dev \
+#  libcairo2 libcairo2-dev \
+#  libpq-dev \
+#  libreadline6-dev libfreetype6-dev \
+#  libfftw3-3 libfftw3-dev \
+#  libpdal-dev\
+#  libglu1-mesa-dev libxmu-dev
+
+RUN pip install --upgrade setuptools
+
+RUN pip install svgis 'svgis[clip]'
+RUN ogrinfo --version
+RUN pip install shapely --no-binary shapely
+
+RUN sudo npm cache clean -f
+# Install ndjson-cli and d3-geo-projection
+RUN sudo npm install -g ndjson-cli d3-geo-projection
+
+#RUN sudo npm install -g gdal --build-from-source --shared_gdal --save
+#RUN sudo npm install -g gdal@0.9.8 --shared_gdal --save
+
+RUN sudo npm install -g shp2json
+RUN sudo npm install -g dbf2json
+
+#RUN sudo npm install https://github.com/mbostock/shapefile.git
+#RUN sudo npm install ndjson-cli
+#RUN sudo npm install topojson-server
+#RUN sudo npm install shapefile
+#RUN sudo npm install -g d3 d3-dsv

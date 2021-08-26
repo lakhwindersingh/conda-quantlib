@@ -1,0 +1,38 @@
+FROM apache/airflow:2.1.2
+ARG TAG=latest
+ENV DEBIAN_FRONTEND noninteractive
+ENV BOOST=/usr/include/boost
+ENV LC_NUMERIC=C
+ENV LANG=en_US.UTF-8
+#ENV LC_ALL=en_GB.UTF-8
+
+USER root
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+         vim \
+  && apt-get autoremove -yqq --purge \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+USER airflow
+
+RUN umask 0002; \
+    mkdir -p ~/writeable-directory
+
+
+#RUN pip install --no-cache-dir mpi4py
+
+COPY --chown=airflow:root dags/test_dag.py /opt/airflow/dags
+
+RUN curl -LfO 'http://apache-airflow-docs.s3-website.eu-central-1.amazonaws.com/docs/apache-airflow/latest/airflow.sh'
+RUN chmod +x airflow.sh
+
+# Add shell script to start postfix and jupyter
+COPY airflow.sh /usr/local/bin
+#RUN chmod +x /usr/local/bin/airflow.sh
+EXPOSE 9999 9000 443
+USER jupyter
+WORKDIR /home/jupyter/
+
+ENTRYPOINT ["/usr/local/bin/airflow.sh"]
+
+CMD []

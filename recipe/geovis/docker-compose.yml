@@ -1,0 +1,30 @@
+version: "3.7"
+
+services:
+  nbanalysis:
+      build:
+        context: .
+        dockerfile: Dockerfile.Geovis
+      image: neutron_binary_analysis
+      container_name: neutron_binary_quantlib
+      environment:
+        TZ: "America/new_york"
+      ports:
+        - "8282:8282"
+      volumes:
+        - /data/code/projects/notebook:/home/jupyter/notebook
+        - /etc/localtime:/etc/localtime:ro
+
+#    nbquantlib:
+#    build:
+#      context: .
+#      dockerfile: DockerFile
+#    image: neutron_binary_quantlib
+#    container_name: neutron_binary_quantlib
+#    environment:
+#      TZ: "America/new_york"
+#    ports:
+#      - "9999:9999"
+#    volumes:
+#       - /data/code/projects/notebook:/home/jupyter/notebook
+ #      - /etc/localtime:/etc/localtime:ro

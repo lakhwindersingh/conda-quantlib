@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+  nbmarket:
+      build:
+        context: .
+        dockerfile: Dockerfile.MarketMon
+      image: nb_market_monitor
+      container_name: nb_market_monitor
+      environment:
+        TZ: "America/new_york"
+      ports:
+        - "8282:8282"
+      volumes:
+        - /data/code/projects/notebook:/home/jupyter/notebook
+        - /etc/localtime:/etc/localtime:ro
