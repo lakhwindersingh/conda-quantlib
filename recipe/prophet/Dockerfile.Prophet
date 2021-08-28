@@ -94,7 +94,7 @@ RUN groupadd -g 1000 jupyter && \
     mkdir -p /etc/sudoers.d /root/.jupyter  /home/jupyter/.jupyter /home/jupyter/notebook&& \
     echo "jupyter:jupyter" | chpasswd && \
     echo "jupyter ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/jupyter && \
-    chmod -R a+rwX  /etc/sudoers.d/jupyter && \
+    chmod -R a+rwX  /etc/sudoers.d/jupyter /home/jupyter && \
     echo "/usr/lib" >  /etc/ld.so.conf.d/nbquant.conf && \
     echo "/usr/local/lib" >>  /etc/ld.so.conf.d/nbquant.conf && \
     ldconfig  &&\
