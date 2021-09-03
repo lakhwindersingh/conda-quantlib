@@ -4,9 +4,9 @@ services:
   nbanalysis:
       build:
         context: .
-        dockerfile: DockerFile.Flutter
-      image: nb_flutter
-      container_name: nb_flutter
+        dockerfile: DockerFile.Airflow
+      image: nb_airflow
+      container_name: nb_airflow
       environment:
         TZ: "America/new_york"
       ports:

@@ -1,0 +1,12 @@
+FROM python:3.9
+# supervisord setup
+RUN apt-get update && apt-get install -y supervisor
+RUN /usr/local/bin/python -m pip install --upgrade pip
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Airflow setup
+ENV AIRFLOW_HOME=/app/airflow
+RUN pip install apache-airflow
+COPY /dags/response_rate_etl.py $AIRFLOW_HOME/dags/
+RUN airflow db init
+EXPOSE 8080
+CMD ["/usr/bin/supervisord"]

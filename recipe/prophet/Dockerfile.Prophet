@@ -1,18 +1,19 @@
-ARG TAG=latest
 FROM ubuntu:20.04 AS quantlib_stage
 
 USER root
 ENV DEBIAN_FRONTEND noninteractive
+ARG TAG=latest
 ARG QUANTLIB_VERSION=1.22
-ENV QUANTLIB_VERSION="${QUANTLIB_VERSION}"
 ARG PYTHON_VERSION=3.8
-ENV PYTHON_VERSION="${PYTHON_VERSION}"
 ARG TALIB_VERSION=0.4.0
-ENV TALIB_VERSION="${TALIB_VERSION}"
 ARG MLPACK_VERSION=3.4.2
-ENV MLPACK_VERSION="${MLPACK_VERSION}"
 
+ENV QUANTLIB_VERSION="${QUANTLIB_VERSION}"
+ENV PYTHON_VERSION="${PYTHON_VERSION}"
+ENV TALIB_VERSION="${TALIB_VERSION}"
+ENV MLPACK_VERSION="${MLPACK_VERSION}"
 ENV BOOST=/usr/include/boost
+
 ENV LC_NUMERIC=C
 ENV LANG=en_US.UTF-8
 #ENV LC_ALL=en_GB.UTF-8
@@ -23,7 +24,6 @@ RUN apt-get -y install libboost-dev libboost-all-dev libboost-math-dev libboost-
 RUN apt-get -y install cmake protobuf-compiler python3-setuptools python3 python3-pip libpng-dev apt-utils python-dev python3-pandas python3-numpy cython3
 
 RUN apt-get -y install libarmadillo-dev binutils-dev
-
 RUN  wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-"${TALIB_VERSION}"-src.tar.gz \
     && tar xzf ta-lib-"${TALIB_VERSION}"-src.tar.gz \
     && rm ta-lib-"${TALIB_VERSION}"-src.tar.gz \
@@ -68,6 +68,10 @@ RUN pip install tensortrade[tf,tensorforce,baselines,ccxt,fbm]
 #STEP 1 :Fundamental Screener
 RUN pip install finvizfinance
 
+#STEP 2 :Create/Assess exiting portfolio
+RUN pip install riskfolio-lib
+RUN pip install pyqlib
+
 #STEP 2 : Fetch Screened stocks historical data
 
 #STEP 3 : Extrapolate using multiple models from historical data & add technical indicators
@@ -83,8 +87,8 @@ RUN pip install finvizfinance
 #STEP 8 : Simulate Portfolios with Strategies from Step 7.
 
 #STEP 9 : Identify delta from existing portfolio and recommend combination of Stocks/Options for Buy/Sell
-RUN sudo pip install pystan==2.19.1.1
-RUN sudo pip install fbprophet
+#RUN sudo pip install pystan==2.19.1.1
+#RUN sudo pip install fbprophet
 
 RUN sudo pip install neuralprophet
 
