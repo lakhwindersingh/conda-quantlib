@@ -71,7 +71,6 @@ RUN pip install finvizfinance
 #STEP 2 :Create/Assess exiting portfolio
 RUN pip install riskfolio-lib
 RUN pip install pyqlib
-
 #STEP 2 : Fetch Screened stocks historical data
 
 #STEP 3 : Extrapolate using multiple models from historical data & add technical indicators
@@ -91,6 +90,11 @@ RUN pip install pyqlib
 #RUN sudo pip install fbprophet
 
 RUN sudo pip install neuralprophet
+
+#Step 11 : Install customized pip packages from git
+RUN sudo pip install git+https://github.com/lakhwindersingh/tensortrade.git
+
+
 
 # Setup for Jupyter Notebook
 RUN groupadd -g 1000 jupyter && \
