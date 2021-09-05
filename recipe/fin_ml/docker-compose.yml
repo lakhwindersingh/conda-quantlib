@@ -4,9 +4,9 @@ services:
   nbanalysis:
       build:
         context: .
-        dockerfile: Dockerfile.Prophet
-      image: nb_prophet
-      container_name: nb_prophet
+        dockerfile: Dockerfile.FinML
+      image: nb_FinML
+      container_name: nb_FinML
       environment:
         TZ: "America/new_york"
       ports:
