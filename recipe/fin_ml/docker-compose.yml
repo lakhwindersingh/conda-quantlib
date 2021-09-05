@@ -5,8 +5,8 @@ services:
       build:
         context: .
         dockerfile: Dockerfile.FinML
-      image: nb_FinML
-      container_name: nb_FinML
+      image: nb_finml
+      container_name: nb_finml
       environment:
         TZ: "America/new_york"
       ports:
