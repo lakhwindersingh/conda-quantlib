@@ -24,14 +24,15 @@ RUN sudo DEBIAN_FRONTEND="noninteractive" apt-get install libproj-dev proj-data 
 RUN sudo DEBIAN_FRONTEND="noninteractive" apt-get install libgeos-dev -y
 
 # install GDAL
-#RUN sudo DEBIAN_FRONTEND="noninteractive" apt-get install libgdal-dev python3-gdal gdal-bin -y
-#ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
-#ENV C_INCLUDE_PATH=/usr/include/gdal
-#RUN pip install GDAL=3.2.1
+RUN sudo DEBIAN_FRONTEND="noninteractive" apt-get install libgdal-dev python3-gdal gdal-bin -y
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
+RUN pip install --upgrade setuptools
+RUN pip install GDAL==3.2.1
 
 RUN sudo npm cache clean -f
-RUN sudo npm uninstall node-pre-gyp node-gyp --save && sudo npm install @mapbox/node-pre-gyp --save
-RUN sudo npm install -g gdal@0.10.1 --build-from-source --shared_gdal
+#RUN sudo npm uninstall node-pre-gyp node-gyp --save && sudo npm install @mapbox/node-pre-gyp --save
+RUN sudo npm install -g gdal --build-from-source --shared_gdal
 
 # install PDAL (optional)
 RUN sudo DEBIAN_FRONTEND="noninteractive" apt-get install libpdal-dev pdal libpdal-plugin-python  -y
@@ -51,7 +52,6 @@ RUN sudo DEBIAN_FRONTEND="noninteractive" apt-get install libpdal-dev pdal libpd
 #  libpdal-dev\
 #  libglu1-mesa-dev libxmu-dev
 
-RUN pip install --upgrade setuptools
 
 RUN pip install svgis 'svgis[clip]'
 RUN ogrinfo --version
