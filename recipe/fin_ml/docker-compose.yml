@@ -12,9 +12,13 @@ services:
       ports:
         - "8282:8282"
       volumes:
-        - /data/code/projects/notebook:/home/jupyter/notebook
-        - /data/code/projects/environments:/home/jupyter/environments
+        - /data/code/projects/notebook:/home/jupyter/notebook:rw
+        - /data/code/dest:/home/jupyter/data:rw
+        #- /data/code/projects/environments:/home/jupyter/environments
         - /etc/localtime:/etc/localtime:ro
+
+#        - /data/code/projects/notebook:/home/jupyter/notebook
+#        - /data/code/projects/environments:/home/jupyter/environments
 
 #    nbquantlib:
 #    build:

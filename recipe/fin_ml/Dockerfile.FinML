@@ -59,17 +59,6 @@ RUN pip install mlpack
 
 ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/lib:${LD_LIBRARY_PATH}"
 
-# Remove python2
-RUN sudo apt purge -y python2.7-minimal
-# You already have Python3 but
-# don't care about the version
-RUN sudo ln -s /usr/bin/python3 /usr/bin/python
-# Same for pip
-RUN sudo apt install -y python3-pip
-RUn sudo ln -s /usr/bin/pip3 /usr/bin/pip
-# Confirm the new version of Python: 3
-RUN python --version
-
 
 RUN pip install --upgrade setuptools
 RUN pip install cython matplotlib tmval chainladder statsmodels
@@ -104,32 +93,41 @@ RUN pip install pyqlib
 RUN sudo pip install neuralprophet
 
 #Step 11 : Install customized pip packages from git
+
 RUN sudo pip install git+https://github.com/lakhwindersingh/tensortrade.git
+RUN sudo pip install ccxt fbm
+
+#RUN sudo pip install git+https://github.com/kroitor/ccxt.pro.git
+#RUN sudo pip install tensortrade[tensortrade,ccxt]@git+https://github.com/lakhwindersingh/tensortrade.git
+#RUN sudo pip install tensortrade[tf,tensorforce,baselines,ccxt,fbm]@git+https://github.com/lakhwindersingh/tensortrade.git
+
 
 # Setup for Jupyter Notebook
 RUN groupadd -g 1000 jupyter && \
     useradd -g jupyter -m -s /bin/bash jupyter && \
-    mkdir -p /etc/sudoers.d /root/.jupyter  /home/jupyter/.jupyter /home/jupyter/notebook&& \
+    mkdir -p /etc/sudoers.d /root/.jupyter  /home/jupyter/.jupyter /home/jupyter/notebook && \
     echo "jupyter:jupyter" | chpasswd && \
     echo "jupyter ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/jupyter && \
     chmod -R a+rwX  /etc/sudoers.d/jupyter /home/jupyter && \
     echo "/usr/lib" >  /etc/ld.so.conf.d/nbquant.conf && \
     echo "/usr/local/lib" >>  /etc/ld.so.conf.d/nbquant.conf && \
-    ldconfig  &&\
+    #sudo mkdir /data && sudo chmod 777 /data && \
+    ldconfig  && \
     echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:$LD_LIBRARY_PATH" > /etc/profile.d/jupyter.sh && \
     echo "export PATH=/usr/local/bin:/usr/bin:$PATH" >> /etc/profile.d/jupyter.sh && \
     cp /etc/profile.d/jupyter.sh /root/.bashrc && \
     # Below file enable password access instead of token
-    echo "c.NotebookApp.token = 'jupyter'" > /root/.jupyter/jupyter_notebook_config.py &&\
-    echo "c.NotebookApp.notebook_dir = '/home/jupyter/notebook/'" >> /root/.jupyter/jupyter_notebook_config.py &&\
+    echo "c.NotebookApp.token = 'jupyter'" > /root/.jupyter/jupyter_notebook_config.py && \
+    echo "c.NotebookApp.notebook_dir = '/home/jupyter/notebook/'" >> /root/.jupyter/jupyter_notebook_config.py && \
     cp /root/.jupyter/jupyter_notebook_config.py /home/jupyter/.jupyter
+
 
 USER jupyter
 RUN pip install --user jupyter jupyterlab
 
 USER root
 # Add shell script to start postfix and jupyter
-#RUN apt-get update && apt-get install sudo
+
 COPY entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 8282 9000 443
