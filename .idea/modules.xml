@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../ML/PYALGO/.idea/PYALGO.iml" filepath="$PROJECT_DIR$/../../ML/PYALGO/.idea/PYALGO.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/conda-quantlib.iml" filepath="$PROJECT_DIR$/.idea/conda-quantlib.iml" />
     </modules>
   </component>
