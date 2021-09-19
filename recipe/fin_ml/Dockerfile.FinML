@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS quantlib_stage
+FROM ubuntu:20.10 AS quantlib_stage
 
 USER root
 ENV DEBIAN_FRONTEND noninteractive
@@ -59,7 +59,6 @@ RUN pip install mlpack
 
 ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/lib:${LD_LIBRARY_PATH}"
 
-
 RUN pip install --upgrade setuptools
 RUN pip install cython matplotlib tmval chainladder statsmodels
 RUN pip install sqlalchemy bokeh pysmbclient numba quandl pytrends mplfinance plotly
@@ -71,7 +70,8 @@ RUN pip install finvizfinance
 
 #STEP 2 :Create/Assess exiting portfolio
 RUN pip install riskfolio-lib
-RUN pip install pyqlib
+#RUN pip install pyqlib
+
 #STEP 2 : Fetch Screened stocks historical data
 
 #STEP 3 : Extrapolate using multiple models from historical data & add technical indicators
@@ -93,9 +93,9 @@ RUN pip install pyqlib
 RUN sudo pip install neuralprophet
 
 #Step 11 : Install customized pip packages from git
-
+RUN sudo apt install -y libfreetype6-dev
 RUN sudo pip install git+https://github.com/lakhwindersingh/tensortrade.git
-RUN sudo pip install ccxt fbm stochastic
+RUN sudo pip install fbm stochastic
 
 #RUN sudo pip install tensortrade[tf,tensorforce,baselines,ccxt,fbm]@git+https://github.com/lakhwindersingh/tensortrade.git
 

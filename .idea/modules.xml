@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../../ML/PYALGO/.idea/PYALGO.iml" filepath="$PROJECT_DIR$/../../ML/PYALGO/.idea/PYALGO.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/conda-quantlib.iml" filepath="$PROJECT_DIR$/.idea/conda-quantlib.iml" />
+      <module fileurl="file://$USER_HOME$/PycharmProjects/phoenix/.idea/phoenix.iml" filepath="$USER_HOME$/PycharmProjects/phoenix/.idea/phoenix.iml" />
+      <module fileurl="file://$USER_HOME$/PycharmProjects/tensortrade/.idea/tensortrade.iml" filepath="$USER_HOME$/PycharmProjects/tensortrade/.idea/tensortrade.iml" />
     </modules>
   </component>
 </project>
