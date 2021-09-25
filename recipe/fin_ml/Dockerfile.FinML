@@ -3,8 +3,8 @@ FROM ubuntu:20.10 AS quantlib_stage
 USER root
 ENV DEBIAN_FRONTEND noninteractive
 ARG TAG=latest
-ARG QUANTLIB_VERSION=1.22
 ARG PYTHON_VERSION=3.8
+ARG QUANTLIB_VERSION=1.22
 ARG TALIB_VERSION=0.4.0
 ARG MLPACK_VERSION=3.4.2
 
@@ -58,11 +58,14 @@ RUN wget https://www.mlpack.org/files/mlpack-"${MLPACK_VERSION}".tar.gz \
 RUN pip install mlpack
 
 ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/lib:${LD_LIBRARY_PATH}"
+RUN sudo apt install -y libfreetype6-dev
 
-RUN pip install --upgrade setuptools
-RUN pip install cython matplotlib tmval chainladder statsmodels
-RUN pip install sqlalchemy bokeh pysmbclient numba quandl pytrends mplfinance plotly
-RUN pip install tensortrade[tf,tensorforce,baselines,ccxt,fbm]
+RUN pip install --upgrade setuptools cython
+RUN pip install numpy==1.19.2 pandas>=1.0.4 cvxpy>=1.1.15 statsmodels>=0.10.1 matplotlib>=3.3.0
+RUN pip install tmval chainladder sqlalchemy bokeh pysmbclient numba quandl pytrends mplfinance plotly
+
+# REST Consumers and Producers
+#RUN pip install Django djangorestframework
 
 # Custom packages
 #STEP 1 :Fundamental Screener
@@ -70,11 +73,19 @@ RUN pip install finvizfinance
 
 #STEP 2 :Create/Assess exiting portfolio
 RUN pip install riskfolio-lib
-#RUN pip install pyqlib
+
+RUN pip install numpy && \
+    pip install --upgrade cython && \
+    pip install --upgrade MarkupSafe>=2.0 pygments>=2.4.1 && \
+    git clone https://github.com/microsoft/qlib.git && cd qlib && ls setup.py && python3 ./setup.py install
 
 #STEP 2 : Fetch Screened stocks historical data
 
 #STEP 3 : Extrapolate using multiple models from historical data & add technical indicators
+#RUN sudo pip install pystan==2.19.1.1
+#RUN sudo pip install fbprophet
+
+RUN sudo pip install neuralprophet
 
 #STEP 4 : Fetch/Simulated Options Chain
 
@@ -87,15 +98,11 @@ RUN pip install riskfolio-lib
 #STEP 8 : Simulate Portfolios with Strategies from Step 7.
 
 #STEP 9 : Identify delta from existing portfolio and recommend combination of Stocks/Options for Buy/Sell
-#RUN sudo pip install pystan==2.19.1.1
-#RUN sudo pip install fbprophet
-
-RUN sudo pip install neuralprophet
 
 #Step 11 : Install customized pip packages from git
-RUN sudo apt install -y libfreetype6-dev
 RUN sudo pip install git+https://github.com/lakhwindersingh/tensortrade.git
-RUN sudo pip install fbm stochastic
+RUN sudo pip install fbm stochastic ccxt
+RUN pip install numpy==1.19.2 pandas>=1.0.4 cvxpy>=1.1.15 statsmodels>=0.10.1 matplotlib>=3.3.0
 
 #RUN sudo pip install tensortrade[tf,tensorforce,baselines,ccxt,fbm]@git+https://github.com/lakhwindersingh/tensortrade.git
 
