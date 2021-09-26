@@ -61,7 +61,7 @@ ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/lib:${LD_LIBRARY_PATH}"
 RUN sudo apt install -y libfreetype6-dev
 
 RUN pip install --upgrade setuptools cython
-RUN pip install numpy==1.19.2 pandas>=1.0.4 cvxpy>=1.1.15 statsmodels>=0.10.1 matplotlib>=3.3.0
+RUN pip install numpy~=1.19.2 pandas>=1.0.4 cvxpy>=1.1.15 statsmodels>=0.10.1 tensorflow>=2.6.0 matplotlib>=3.3.3
 RUN pip install tmval chainladder sqlalchemy bokeh pysmbclient numba quandl pytrends mplfinance plotly
 
 # REST Consumers and Producers
@@ -88,6 +88,7 @@ RUN pip install numpy && \
 RUN sudo pip install neuralprophet
 
 #STEP 4 : Fetch/Simulated Options Chain
+RUN  git clone https://github.com/jasonstrimpel/volatility-trading.git && cd qlib && ls setup.py && python3 ./setup.py install
 
 #STEP 5 : Generate buy signals for stock, with probability, confidence and returns on extrapolated data
 
@@ -101,10 +102,7 @@ RUN sudo pip install neuralprophet
 
 #Step 11 : Install customized pip packages from git
 RUN sudo pip install git+https://github.com/lakhwindersingh/tensortrade.git
-RUN sudo pip install fbm stochastic ccxt
-RUN pip install numpy==1.19.2 pandas>=1.0.4 cvxpy>=1.1.15 statsmodels>=0.10.1 matplotlib>=3.3.0
-
-#RUN sudo pip install tensortrade[tf,tensorforce,baselines,ccxt,fbm]@git+https://github.com/lakhwindersingh/tensortrade.git
+RUN sudo pip install ccxt fbm stochastic
 
 # Setup for Jupyter Notebook
 RUN groupadd -g 1000 jupyter && \
