@@ -143,8 +143,9 @@ RUN apt-get -y remove libboost-dev libboost-all-dev libboost-math-dev libboost-t
 
 COPY entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/entrypoint.sh
-EXPOSE 8282 9000 443
+EXPOSE 8282 9000 9292 443
 WORKDIR /home/jupyter/
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 CMD []
+#CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9292" "--reload-dir" "home/jupyter/notebook/neutron_binary/py_code/fastapi/"]
