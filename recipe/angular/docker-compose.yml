@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+  nbanalysis:
+      build:
+        context: .
+        dockerfile: DockerFile.Angular
+      image: nb_angular
+      container_name: nb_angular
+      environment:
+        TZ: "America/new_york"
+      ports:
+        - "7272:3080"
+      volumes:
+        - /data/code/projects/notebook:/home/jupyter/notebook
+        - /etc/localtime:/etc/localtime:ro
+        - ./src:/usr/src/app/src

@@ -1,0 +1,26 @@
+FROM node:16 AS ui-build
+
+RUN apt-get -y update && apt-get -y install --no-install-recommends git ssh
+
+WORKDIR /root
+RUN mkdir -p /root/.ssh
+COPY docker-git .ssh
+
+WORKDIR /usr/src/app
+
+RUN git clone git@github.com:lakhwindersingh/nb_node_fast_int.git nb-app
+RUN cd nb-app/client_angular/dynamic-plots && npm install @angular/cli && npm install && npm run build
+
+FROM node:16 AS server-build
+WORKDIR /root/
+
+COPY --from=ui-build /usr/src/app/nb-app/client_angular/dynamic-plots/dist ./nb-app/dist
+COPY package*.json ./
+
+RUN npm install
+
+COPY server.js .
+
+EXPOSE 3080
+
+CMD ["node", "server.js"]
