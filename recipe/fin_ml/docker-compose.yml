@@ -4,13 +4,14 @@ services:
   nbanalysis:
       build:
         context: .
-        dockerfile: Dockerfile.FinML
+        dockerfile: Dockerfile.Alpine.FinML
       image: nb_finml
       container_name: nb_finml
       environment:
         TZ: "America/new_york"
       ports:
         - "8282:8282"
+        - "9292:9292"
       volumes:
         - /data/code/projects/notebook:/home/jupyter/notebook:rw
         - /data/code/dest:/home/jupyter/data:rw

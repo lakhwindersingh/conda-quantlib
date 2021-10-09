@@ -1,12 +1,12 @@
-FROM ubuntu:20.10 AS quantlib_stage
+FROM phusion/baseimage:focal-1.0.0 AS quantlib_stage
 
 USER root
 ENV DEBIAN_FRONTEND noninteractive
 ARG TAG=latest
 ARG PYTHON_VERSION=3.8
 ARG QUANTLIB_VERSION=1.22
-ARG TALIB_VERSION=0.4.0
 ARG MLPACK_VERSION=3.4.2
+ARG TALIB_VERSION=0.4.0
 
 ENV QUANTLIB_VERSION="${QUANTLIB_VERSION}"
 ENV PYTHON_VERSION="${PYTHON_VERSION}"
@@ -19,9 +19,10 @@ ENV LANG=en_US.UTF-8
 #ENV LC_ALL=en_GB.UTF-8
 
 RUN apt-get update
-RUN apt-get -y install git sudo wget curl software-properties-common build-essential gcc
+RUN apt-get -y install apt-utils git sudo wget curl software-properties-common build-essential gcc cmake protobuf-compiler
 RUN apt-get -y install libboost-dev libboost-all-dev libboost-math-dev libboost-test-dev libboost-serialization-dev
-RUN apt-get -y install cmake protobuf-compiler python3-setuptools python3 python3-pip libpng-dev apt-utils python-dev python3-pandas python3-numpy cython3
+RUN apt-get -y install python3-setuptools python3 python3-pip libpng-dev python-dev cython3
+RUN apt-get -y upgrade
 
 RUN apt-get -y install libarmadillo-dev binutils-dev
 RUN  wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-"${TALIB_VERSION}"-src.tar.gz \
@@ -57,6 +58,8 @@ RUN wget https://www.mlpack.org/files/mlpack-"${MLPACK_VERSION}".tar.gz \
     && cd / && rm -rf mlpack-"${MLPACK_VERSION}"
 RUN pip install mlpack
 
+#https://github.com/pnlnum/pnl.git
+
 ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/lib:${LD_LIBRARY_PATH}"
 RUN sudo apt install -y libfreetype6-dev
 
@@ -65,7 +68,7 @@ RUN pip install numpy~=1.19.2 pandas>=1.0.4 cvxpy>=1.1.15 statsmodels>=0.10.1 te
 RUN pip install lz4 tmval chainladder sqlalchemy bokeh pysmbclient numba quandl pytrends mplfinance plotly
 
 # REST Consumers and Producers
-#RUN pip install Django djangorestframework
+# RUN pip install Django djangorestframework
 
 # Custom packages
 #STEP 1 :Fundamental Screener
@@ -85,12 +88,13 @@ RUN pip install numpy && \
 #RUN sudo pip install pystan==2.19.1.1
 #RUN sudo pip install fbprophet
 
-RUN sudo pip install neuralprophet
+#RUN sudo pip install neuralprophet
 
 #STEP 4 : Fetch/Simulated Options Chain
 RUN  git clone https://github.com/jasonstrimpel/volatility-trading.git && cd qlib && ls setup.py && python3 ./setup.py install
 
 #STEP 5 : Generate buy signals for stock, with probability, confidence and returns on extrapolated data
+RUN pip install quantstats
 
 #STEP 6 : Marry with Options Chain data.
 
@@ -102,7 +106,12 @@ RUN  git clone https://github.com/jasonstrimpel/volatility-trading.git && cd qli
 
 #Step 11 : Install customized pip packages from git
 RUN sudo pip install git+https://github.com/lakhwindersingh/tensortrade.git
-RUN sudo pip install ccxt fbm stochastic ray dm_tree scikit-image tensorboardx
+RUN sudo pip install ccxt fbm stochastic ray dm_tree scikit-image tensorboardx ffn
+#c3pyo
+#RUN pip install git+https://github.com/cuemacro/chartpy.git
+RUN pip install fastapi uvicorn[standard]
+
+RUN pip install --user jupyter jupyterlab
 
 # Setup for Jupyter Notebook
 RUN groupadd -g 1000 jupyter && \
@@ -116,7 +125,7 @@ RUN groupadd -g 1000 jupyter && \
     #sudo mkdir /data && sudo chmod 777 /data && \
     ldconfig  && \
     echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/lib:$LD_LIBRARY_PATH" > /etc/profile.d/jupyter.sh && \
-    echo "export PATH=/usr/local/bin:/usr/bin:$PATH" >> /etc/profile.d/jupyter.sh && \
+    echo "export PATH=/usr/local/bin:/usr/bin:/home/jupyter/.local/bin:$PATH" >> /etc/profile.d/jupyter.sh && \
     cp /etc/profile.d/jupyter.sh /root/.bashrc && \
     # Below file enable password access instead of token
     echo "c.NotebookApp.token = 'jupyter'" > /root/.jupyter/jupyter_notebook_config.py && \
@@ -128,6 +137,9 @@ RUN pip install --user jupyter jupyterlab
 
 USER root
 # Add shell script to start postfix and jupyter
+RUN apt-get -y remove libboost-dev libboost-all-dev libboost-math-dev libboost-test-dev libboost-serialization-dev && \
+    #apt-get -y remove apt-utils git software-properties-common build-essential gcc cmake protobuf-compiler && \
+    apt-get -y autoremove && apt-get clean
 
 COPY entrypoint.sh /usr/local/bin
 RUN chmod +x /usr/local/bin/entrypoint.sh
